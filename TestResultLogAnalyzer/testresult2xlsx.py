@@ -17,11 +17,12 @@ fails_format = workbook.add_format({'align': 'center', 'color': '#FF0000'})
 border_format = workbook.add_format({'border': 1, 'align': 'left', 'font_size': 10})
 
 # key words to match
+start_of_mhs = "开始测试方法"
 fail_of_mhs = "测试方法出错"
 pass_of_mhs = "测试方法成功"
 start_of_ifs = "开始测试接口"
-start_of_mhs = "开始测试方法"
-end_of_ifs = "测试接口出错"
+pass_of_ifs = "测试接口成功"
+fail_of_ifs = "测试接口出错"
 
 
 def time_diff(time_str_start, time_str_end):
@@ -126,9 +127,11 @@ for log_file in os.listdir(dst_path):
                     worksheet.write(row-1, 6, time_diff(time_start, time_end), index_format)
                     fail_cnt += 1
 
-                if desc.find(end_of_ifs) != -1:
+                if desc.find(fail_of_ifs) != -1 or desc.find(pass_of_ifs) != -1:
                     ifs_sum = "%s (%s/%s)" % (ifs_name, fail_cnt, i-1)
-                    worksheet.merge_range(row_start, 0, row-1, 0, ifs_sum, ifs_format)
+                    if row_start != row-1:
+                        worksheet.merge_range(row_start, 0, row-1, 0, ifs_sum, ifs_format)
+
                     ifs_names.append(ifs_name)
                     case_cnts.append(i-1)
                     fail_cnts.append(fail_cnt)
@@ -136,20 +139,25 @@ for log_file in os.listdir(dst_path):
 
             # end of for line in lines
 
-            # headings = ["I/Fs", "Total", "Fail"]
-            # sum_sheet.write_row("A1", headings, head_format)
-            sum_sheet.merge_range(0, 0, 1, 0, "I/Fs", head_format)
-            sum_sheet.merge_range(0, 1, 0, 2, "Methods", head_format)
+            headings = ["I/Fs", "Total", "Fail"]
+            sum_sheet.write_row("A2", headings, head_format)
             sum_sheet.write("B2", "Total", head_format)
             sum_sheet.write("C2", "Fail", head_format)
             sum_sheet.write_column("A3", ifs_names)
             sum_sheet.write_column("B3", case_cnts, total_format)
-            sum_sheet.write_column("C3", fail_cnts, fails_format)
+
+            row = 2
+            for fail_cnt in fail_cnts:
+                if fail_cnt == 0:
+                    sum_sheet.write(row, 2, fail_cnt, total_format)
+                else:
+                    sum_sheet.write(row, 2, fail_cnt, fails_format)
+                row += 1
+
             sum_sheet.set_column(0, 0, 30)
             sum_sheet.set_column(1, 1, 5)
             sum_sheet.set_column(2, 2, 5)
-            rows = len(ifs_names) + 1
-            sum_sheet.conditional_format(0, 0, row, 3, {'type': 'no_blanks', 'format': border_format})
+            sum_sheet.conditional_format(1, 0, row-1, 3, {'type': 'no_blanks', 'format': border_format})
 
             chart1 = workbook.add_chart({'type': 'column'})
 
