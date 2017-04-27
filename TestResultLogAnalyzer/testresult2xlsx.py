@@ -132,6 +132,7 @@ for log_file in os.listdir(dst_path):
                     ifs_names.append(ifs_name)
                     case_cnts.append(i-1)
                     fail_cnts.append(fail_cnt)
+                    worksheet.conditional_format(0, 0, row-1, 6, {'type': 'no_blanks', 'format': border_format})
 
             # end of for line in lines
 
