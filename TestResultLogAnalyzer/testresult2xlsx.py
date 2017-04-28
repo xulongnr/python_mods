@@ -84,7 +84,7 @@ for log_file in os.listdir(dst_path):
 
                 # start of interface
                 if desc.find(start_of_ifs) != -1:
-                    ifs_name = desc.split(":")[1].split(".")[-1]
+                    ifs_name = desc.split(":")[1].split(".")[-1].split("Test")[1]
                     row = 0
                     worksheet = workbook.add_worksheet(ifs_name)
                     headings = ["I/Fs", "idx", "Methods", "Results", "Time_start", "Time_end", "Duration(s)"]
@@ -108,7 +108,7 @@ for log_file in os.listdir(dst_path):
                     worksheet.write(row, 1, i, index_format)
                     i += 1
                     test_mth_name = desc.split(":")[1]
-                    worksheet.write(row, 2, test_mth_name.split("_")[1])
+                    worksheet.write(row, 2, test_mth_name[test_mth_name.find("_")+1:])
                     time_start = line.split(" : ")[1]
                     worksheet.write(row, 4, time_start)
                     row += 1
